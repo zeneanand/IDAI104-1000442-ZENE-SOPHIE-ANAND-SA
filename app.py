@@ -15,7 +15,6 @@ st.set_page_config(
 )
 
 # --- 2. GAME MECHANICS & STATE ---
-# Fixed Leveling system so it scales properly
 LEVEL_DATA = {
     1: {"xp_needed": 0, "target_alt": 15000, "max_thrust": 8000000, "title": "Flight Cadet"},
     2: {"xp_needed": 200, "target_alt": 50000, "max_thrust": 15000000, "title": "Orbital Veteran"},
@@ -27,6 +26,7 @@ LEVEL_DATA = {
 if 'current_user' not in st.session_state:
     st.session_state['current_user'] = None
 
+# --- FIXED SESSION STATE MIGRATION ---
 if 'user_stats' not in st.session_state:
     st.session_state['user_stats'] = {
         'xp': 0,
@@ -34,6 +34,12 @@ if 'user_stats' not in st.session_state:
         'simulations_run': 0,
         'max_alt_reached': 0
     }
+else:
+    # If the user has an old session saved, patch it so it doesn't crash!
+    if 'max_alt_reached' not in st.session_state['user_stats']:
+        st.session_state['user_stats']['max_alt_reached'] = 0
+    if 'simulations_run' not in st.session_state['user_stats']:
+        st.session_state['user_stats']['simulations_run'] = 0
 
 # --- 3. CUSTOM CSS ---
 st.markdown("""
@@ -55,7 +61,7 @@ def load_data():
         df = pd.read_csv("rocket_missions.csv")
         df.columns = df.columns.str.strip()
         
-        # Fuzzy match to handle the long column names in your dataset
+        # Fuzzy match to handle the long column names
         for col in df.columns:
             if any(k in col.lower() for k in ['cost', 'weight', 'fuel', 'distance', 'yield', 'size', 'duration']):
                 df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -63,7 +69,6 @@ def load_data():
     except Exception:
         return None
 
-# Helper function to safely find your long column names
 def get_col(df, keyword):
     for col in df.columns:
         if keyword.lower() in col.lower():
@@ -92,7 +97,6 @@ def run_physics_sim(fuel, payload, thrust):
         v += accel
         alt += v
         
-        # Fixed the flatline bug: Only break if it hits the ground AFTER actually launching
         if alt <= 0 and t > 2: 
             alt = 0
             path.append({"Time": t, "Altitude": alt, "Velocity": v})
@@ -103,7 +107,6 @@ def run_physics_sim(fuel, payload, thrust):
     return pd.DataFrame(path)
 
 def update_level():
-    # Dynamically calculate level based on total XP to fix the stuck progression
     xp = st.session_state['user_stats']['xp']
     new_level = 1
     for lvl in sorted(LEVEL_DATA.keys(), reverse=True):
@@ -131,7 +134,7 @@ def login_page():
 
 def main_app():
     df = load_data()
-    update_level() # Check level every time the app re-runs
+    update_level()
     
     lvl = st.session_state['user_stats']['level']
     lvl_info = LEVEL_DATA.get(lvl, LEVEL_DATA[max(LEVEL_DATA.keys())])
@@ -140,11 +143,9 @@ def main_app():
     with st.sidebar:
         st.header(f"👨‍🚀 Cmdr. {st.session_state['current_user']}")
         
-        # Dynamic Rank Text
         st.markdown(f"<h3 style='text-align: center; color: #ff4b4b;'>RANK: LVL {lvl}</h3>", unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center;'>{lvl_info['title']}</p>", unsafe_allow_html=True)
         
-        # Fixed XP Progress Bar
         next_lvl = min(lvl + 1, max(LEVEL_DATA.keys()))
         next_xp = LEVEL_DATA[next_lvl]["xp_needed"]
         
@@ -173,7 +174,6 @@ def main_app():
         
         with col_s1:
             st.subheader("Flight Parameters")
-            # Default thrust is now mathematically guaranteed to lift the default weights
             thrust = st.slider("Engine Thrust (N)", 1000000, lvl_info["max_thrust"], min(4000000, lvl_info["max_thrust"]), step=500000)
             fuel = st.slider("Fuel Mass (kg)", 50000, 300000, 100000)
             payload = st.slider("Payload Mass (kg)", 5000, 100000, 20000)
@@ -190,7 +190,7 @@ def main_app():
                 if max_alt >= lvl_info['target_alt']:
                     st.success(f"Target Reached! Max Altitude: {int(max_alt)}m (+50 XP)")
                     st.session_state['user_stats']['xp'] += 50
-                    st.rerun() # Force UI refresh to update level immediately
+                    st.rerun() 
                 elif max_alt <= 0:
                     st.error("Launch Failed: Thrust too weak for current mass!")
                 else:
@@ -211,7 +211,6 @@ def main_app():
     with tab2:
         st.title("Historical Mission Data")
         if df is not None:
-            # Dynamically grab the correct messy column names
             c_payload = get_col(df, 'payload')
             c_fuel = get_col(df, 'fuel')
             c_success = get_col(df, 'success')
@@ -246,16 +245,17 @@ def main_app():
                     fig4 = px.box(df, x=c_success, y=c_crew, title="4. Crew Size vs Mission Success")
                     st.plotly_chart(fig4, use_container_width=True)
                 
-                # Fixed Heatmap: Tight layout to prevent cut-off labels
                 st.write("**6. Feature Correlation Heatmap**")
                 fig_h, ax_h = plt.subplots(figsize=(8, 6))
                 fig_h.patch.set_facecolor('#0E1117')
                 ax_h.set_facecolor('#0E1117')
                 sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="mako", ax=ax_h, fmt=".2f")
                 ax_h.tick_params(colors='white', labelsize=8)
-                plt.xticks(rotation=45, ha='right') # Angled text so it fits
-                plt.tight_layout() # Ensures nothing gets chopped off
+                plt.xticks(rotation=45, ha='right')
+                plt.tight_layout()
                 st.pyplot(fig_h)
+        else:
+            st.error("Missing 'rocket_missions.csv'. Please upload it to your GitHub repository.")
 
     with tab3:
         st.title("🏆 Commander Achievements")
@@ -264,7 +264,6 @@ def main_app():
         cols = st.columns(3)
         stats = st.session_state['user_stats']
         
-        # 6 New Achievements
         achievements = [
             ("🌱 Flight Cadet", "Run your first simulation.", stats['simulations_run'] >= 1),
             ("🔥 Orbital Veteran", "Run 5 total simulations.", stats['simulations_run'] >= 5),
@@ -284,3 +283,4 @@ def main_app():
 if __name__ == "__main__":
     if st.session_state['current_user']: main_app()
     else: login_page()
+        
