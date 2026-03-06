@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import seaborn as sns
 
 # --- 1. APP CONFIGURATION ---
@@ -14,11 +15,13 @@ st.set_page_config(
 )
 
 # --- 2. GAME MECHANICS & STATE ---
+# Fixed Leveling system so it scales properly
 LEVEL_DATA = {
-    1: {"xp_needed": 100, "target_alt": 15000, "max_thrust": 8000000, "title": "Flight Cadet"},
-    2: {"xp_needed": 300, "target_alt": 50000, "max_thrust": 15000000, "title": "Orbital Veteran"},
-    3: {"xp_needed": 600, "target_alt": 150000, "max_thrust": 25000000, "title": "Deep Space Explorer"},
-    4: {"xp_needed": 1000, "target_alt": 300000, "max_thrust": 40000000, "title": "Galactic Commander"},
+    1: {"xp_needed": 0, "target_alt": 15000, "max_thrust": 8000000, "title": "Flight Cadet"},
+    2: {"xp_needed": 200, "target_alt": 50000, "max_thrust": 15000000, "title": "Orbital Veteran"},
+    3: {"xp_needed": 500, "target_alt": 150000, "max_thrust": 25000000, "title": "Deep Space Explorer"},
+    4: {"xp_needed": 1000, "target_alt": 300000, "max_thrust": 45000000, "title": "Galactic Commander"},
+    5: {"xp_needed": 2000, "target_alt": 1000000, "max_thrust": 100000000, "title": "Starfleet Admiral"}
 }
 
 if 'current_user' not in st.session_state:
@@ -28,7 +31,8 @@ if 'user_stats' not in st.session_state:
     st.session_state['user_stats'] = {
         'xp': 0,
         'level': 1,
-        'simulations_run': 0
+        'simulations_run': 0,
+        'max_alt_reached': 0
     }
 
 # --- 3. CUSTOM CSS ---
@@ -50,26 +54,32 @@ def load_data():
     try:
         df = pd.read_csv("rocket_missions.csv")
         df.columns = df.columns.str.strip()
-        numeric_cols = ['Mission Cost', 'Payload Weight', 'Fuel Consumption', 'Distance from Earth', 'Scientific Yield', 'Crew Size', 'Mission Duration']
-        for col in numeric_cols:
-            if col in df.columns:
+        
+        # Fuzzy match to handle the long column names in your dataset
+        for col in df.columns:
+            if any(k in col.lower() for k in ['cost', 'weight', 'fuel', 'distance', 'yield', 'size', 'duration']):
                 df[col] = pd.to_numeric(df[col], errors='coerce')
-        if 'Mission Success' in df.columns:
-            df = df.dropna(subset=['Mission Success'])
         return df
     except Exception:
         return None
 
+# Helper function to safely find your long column names
+def get_col(df, keyword):
+    for col in df.columns:
+        if keyword.lower() in col.lower():
+            return col
+    return None
+
 def run_physics_sim(fuel, payload, thrust):
     g = 9.81
-    burn_rate = fuel / 100.0 if fuel > 0 else 1 # Burn all fuel in 100 seconds
+    burn_rate = fuel / 100.0 if fuel > 0 else 1 
     dry_mass = 50000
     
     v, alt = 0.0, 0.0
     curr_fuel = fuel
     path = [{"Time": 0, "Altitude": 0.0, "Velocity": 0.0}]
     
-    for t in range(1, 301): # 300 seconds flight time
+    for t in range(1, 301): 
         total_m = dry_mass + payload + max(0, curr_fuel)
         
         # F = ma
@@ -77,33 +87,33 @@ def run_physics_sim(fuel, payload, thrust):
             accel = (thrust - (total_m * g)) / total_m
             curr_fuel -= burn_rate
         else:
-            accel = -g # Engine cuts out, gravity takes over
+            accel = -g 
             
         v += accel
         alt += v
         
-        # Hit the ground
-        if alt <= 0 and t > 5: 
+        # Fixed the flatline bug: Only break if it hits the ground AFTER actually launching
+        if alt <= 0 and t > 2: 
             alt = 0
             path.append({"Time": t, "Altitude": alt, "Velocity": v})
             break
             
-        path.append({"Time": t, "Altitude": alt, "Velocity": v})
+        path.append({"Time": t, "Altitude": max(0, alt), "Velocity": v})
         
     return pd.DataFrame(path)
 
-def check_level_up():
-    lvl = st.session_state['user_stats']['level']
+def update_level():
+    # Dynamically calculate level based on total XP to fix the stuck progression
     xp = st.session_state['user_stats']['xp']
-    
-    # Check if they have reached the max level
-    if lvl < max(LEVEL_DATA.keys()):
-        required_xp = LEVEL_DATA[lvl]["xp_needed"]
-        if xp >= required_xp:
-            st.session_state['user_stats']['level'] += 1
-            st.balloons()
-            return True
-    return False
+    new_level = 1
+    for lvl in sorted(LEVEL_DATA.keys(), reverse=True):
+        if xp >= LEVEL_DATA[lvl]["xp_needed"]:
+            new_level = lvl
+            break
+            
+    if new_level > st.session_state['user_stats']['level']:
+        st.balloons()
+    st.session_state['user_stats']['level'] = new_level
 
 # --- 5. PAGE ROUTING ---
 def login_page():
@@ -121,6 +131,8 @@ def login_page():
 
 def main_app():
     df = load_data()
+    update_level() # Check level every time the app re-runs
+    
     lvl = st.session_state['user_stats']['level']
     lvl_info = LEVEL_DATA.get(lvl, LEVEL_DATA[max(LEVEL_DATA.keys())])
     
@@ -128,16 +140,22 @@ def main_app():
     with st.sidebar:
         st.header(f"👨‍🚀 Cmdr. {st.session_state['current_user']}")
         
-        # Realistic Rocket Image based on level
-        st.image("https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=400&q=80", caption=f"Rank: {lvl_info['title']}")
+        # Dynamic Rank Text
+        st.markdown(f"<h3 style='text-align: center; color: #ff4b4b;'>RANK: LVL {lvl}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center;'>{lvl_info['title']}</p>", unsafe_allow_html=True)
         
-        # XP Progress Bar
-        next_xp = lvl_info["xp_needed"] if lvl < max(LEVEL_DATA.keys()) else st.session_state['user_stats']['xp']
-        progress = min(st.session_state['user_stats']['xp'] / next_xp, 1.0) if next_xp > 0 else 1.0
+        # Fixed XP Progress Bar
+        next_lvl = min(lvl + 1, max(LEVEL_DATA.keys()))
+        next_xp = LEVEL_DATA[next_lvl]["xp_needed"]
         
-        st.progress(progress)
-        st.caption(f"XP: {st.session_state['user_stats']['xp']} / {next_xp}")
-        st.write(f"**Level {lvl} Goal:** Reach {lvl_info['target_alt']}m")
+        if lvl == max(LEVEL_DATA.keys()):
+            st.progress(1.0)
+            st.caption(f"XP: {st.session_state['user_stats']['xp']} (MAX RANK ACHIEVED)")
+        else:
+            progress = min(st.session_state['user_stats']['xp'] / next_xp, 1.0)
+            st.progress(progress)
+            st.caption(f"XP: {st.session_state['user_stats']['xp']} / {next_xp}")
+            st.write(f"**Level {lvl} Goal:** Reach {lvl_info['target_alt']}m")
         
         st.divider()
         if st.button("Abort Mission (Logout)"):
@@ -145,17 +163,18 @@ def main_app():
             st.rerun()
 
     # --- DASHBOARD TABS ---
-    tab1, tab2 = st.tabs(["🚀 Launch Sim", "📊 Mission Analytics"])
+    tab1, tab2, tab3 = st.tabs(["🚀 Launch Sim", "📊 Mission Analytics", "🏅 Achievements"])
 
     with tab1:
         st.title(f"Level {lvl} Simulator: {lvl_info['title']}")
-        st.write(f"**MISSION:** Adjust your parameters to break the altitude target of **{lvl_info['target_alt']} meters**!")
+        st.write(f"**MISSION:** Adjust parameters to break the altitude target of **{lvl_info['target_alt']} meters**!")
         
         col_s1, col_s2 = st.columns([1, 2])
         
         with col_s1:
             st.subheader("Flight Parameters")
-            thrust = st.slider("Engine Thrust (N)", 1000000, lvl_info["max_thrust"], lvl_info["max_thrust"] // 2, step=500000)
+            # Default thrust is now mathematically guaranteed to lift the default weights
+            thrust = st.slider("Engine Thrust (N)", 1000000, lvl_info["max_thrust"], min(4000000, lvl_info["max_thrust"]), step=500000)
             fuel = st.slider("Fuel Mass (kg)", 50000, 300000, 100000)
             payload = st.slider("Payload Mass (kg)", 5000, 100000, 20000)
             
@@ -164,17 +183,18 @@ def main_app():
                 st.session_state['sim_results'] = sim_data
                 st.session_state['user_stats']['simulations_run'] += 1
                 
-                # Check Win Condition
                 max_alt = sim_data["Altitude"].max()
+                if max_alt > st.session_state['user_stats']['max_alt_reached']:
+                    st.session_state['user_stats']['max_alt_reached'] = max_alt
+                
                 if max_alt >= lvl_info['target_alt']:
                     st.success(f"Target Reached! Max Altitude: {int(max_alt)}m (+50 XP)")
                     st.session_state['user_stats']['xp'] += 50
-                    if check_level_up():
-                        st.markdown("<p class='level-up-text'>🎉 LEVEL UP! New Engines Unlocked!</p>", unsafe_allow_html=True)
+                    st.rerun() # Force UI refresh to update level immediately
                 elif max_alt <= 0:
-                    st.error("Launch Failed: Thrust was too weak to lift the rocket's mass! Increase Thrust or decrease weight.")
+                    st.error("Launch Failed: Thrust too weak for current mass!")
                 else:
-                    st.warning(f"Max Altitude: {int(max_alt)}m. You fell short of the {lvl_info['target_alt']}m target.")
+                    st.warning(f"Max Altitude: {int(max_alt)}m. Fell short of {lvl_info['target_alt']}m.")
 
         with col_s2:
             if 'sim_results' in st.session_state:
@@ -185,54 +205,81 @@ def main_app():
                         title="Flight Path Trajectory", template="plotly_dark",
                         labels={"Time": "Time (s)", "Altitude": "Altitude (m)"}
                     )
-                    # Add a red dashed line showing the target altitude
                     fig.add_hline(y=lvl_info['target_alt'], line_dash="dash", line_color="red", annotation_text="TARGET ALTITUDE")
                     st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.error("🚀 Grounded! The rocket was too heavy for that thrust setting.")
 
     with tab2:
         st.title("Historical Mission Data")
         if df is not None:
-            with st.expander("🔍 View Raw Dataset Exploration (EDA) & Troubleshooting"):
-                st.write("**Dataset Columns Found:**", list(df.columns))
-                st.write(df.head())
-                st.write(df.describe())
+            # Dynamically grab the correct messy column names
+            c_payload = get_col(df, 'payload')
+            c_fuel = get_col(df, 'fuel')
+            c_success = get_col(df, 'success')
+            c_dist = get_col(df, 'distance')
+            c_dur = get_col(df, 'duration')
+            c_cost = get_col(df, 'cost')
+            c_yield = get_col(df, 'yield')
+            c_crew = get_col(df, 'crew')
 
             c1, c2 = st.columns(2)
             with c1:
-                if {"Payload Weight", "Fuel Consumption", "Mission Success"}.issubset(df.columns):
-                    fig1 = px.scatter(df, x="Payload Weight", y="Fuel Consumption", color="Mission Success", title="1. Payload vs Fuel Consumption")
+                if c_payload and c_fuel and c_success:
+                    fig1 = px.scatter(df, x=c_payload, y=c_fuel, color=c_success, title="1. Payload vs Fuel Consumption")
                     st.plotly_chart(fig1, use_container_width=True)
                 
-                if {"Distance from Earth", "Mission Duration"}.issubset(df.columns):
-                    df_sorted = df.sort_values("Distance from Earth")
-                    fig3 = px.line(df_sorted, x="Distance from Earth", y="Mission Duration", title="3. Mission Duration vs Distance")
+                if c_dist and c_dur:
+                    df_sorted = df.sort_values(c_dist)
+                    fig3 = px.line(df_sorted, x=c_dist, y=c_dur, title="3. Mission Duration vs Distance")
                     st.plotly_chart(fig3, use_container_width=True)
 
-                if {"Mission Cost", "Scientific Yield", "Crew Size", "Mission Success"}.issubset(df.columns):
-                    fig5 = px.scatter(df, x="Mission Cost", y="Scientific Yield", size="Crew Size", color="Mission Success", title="5. Scientific Yield vs Mission Cost")
+                if c_cost and c_yield and c_crew and c_success:
+                    fig5 = px.scatter(df, x=c_cost, y=c_yield, size=c_crew, color=c_success, title="5. Scientific Yield vs Cost")
                     st.plotly_chart(fig5, use_container_width=True)
 
             with c2:
-                if {"Mission Success", "Mission Cost"}.issubset(df.columns):
-                    avg_cost = df.groupby("Mission Success")["Mission Cost"].mean().reset_index()
-                    fig2 = px.bar(avg_cost, x="Mission Success", y="Mission Cost", color="Mission Success", title="2. Avg Mission Cost: Success vs Failure")
+                if c_success and c_cost:
+                    avg_cost = df.groupby(c_success)[c_cost].mean().reset_index()
+                    fig2 = px.bar(avg_cost, x=c_success, y=c_cost, color=c_success, title="2. Avg Mission Cost: Success vs Failure")
                     st.plotly_chart(fig2, use_container_width=True)
                 
-                if {"Mission Success", "Crew Size"}.issubset(df.columns):
-                    fig4 = px.box(df, x="Mission Success", y="Crew Size", title="4. Crew Size vs Mission Success")
+                if c_success and c_crew:
+                    fig4 = px.box(df, x=c_success, y=c_crew, title="4. Crew Size vs Mission Success")
                     st.plotly_chart(fig4, use_container_width=True)
                 
+                # Fixed Heatmap: Tight layout to prevent cut-off labels
                 st.write("**6. Feature Correlation Heatmap**")
-                fig_h, ax_h = plt.subplots()
+                fig_h, ax_h = plt.subplots(figsize=(8, 6))
                 fig_h.patch.set_facecolor('#0E1117')
                 ax_h.set_facecolor('#0E1117')
-                sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="mako", ax=ax_h)
-                ax_h.tick_params(colors='white')
+                sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="mako", ax=ax_h, fmt=".2f")
+                ax_h.tick_params(colors='white', labelsize=8)
+                plt.xticks(rotation=45, ha='right') # Angled text so it fits
+                plt.tight_layout() # Ensures nothing gets chopped off
                 st.pyplot(fig_h)
-        else:
-            st.error("Missing 'rocket_missions.csv'. Please upload it to your GitHub repository.")
+
+    with tab3:
+        st.title("🏆 Commander Achievements")
+        st.write("Complete tasks in the simulator to unlock badges!")
+        
+        cols = st.columns(3)
+        stats = st.session_state['user_stats']
+        
+        # 6 New Achievements
+        achievements = [
+            ("🌱 Flight Cadet", "Run your first simulation.", stats['simulations_run'] >= 1),
+            ("🔥 Orbital Veteran", "Run 5 total simulations.", stats['simulations_run'] >= 5),
+            ("🌌 Deep Space Explorer", "Run 15 total simulations.", stats['simulations_run'] >= 15),
+            ("🏋️ Heavy Lifter", "Reach Level 2 to unlock stronger engines.", stats['level'] >= 2),
+            ("⭐ XP Hoarder", "Accumulate 1000 total XP.", stats['xp'] >= 1000),
+            ("🚀 Karman Line", "Reach an altitude of 100,000m.", stats['max_alt_reached'] >= 100000)
+        ]
+        
+        for i, (name, desc, status) in enumerate(achievements):
+            with cols[i % 3]:
+                if status: 
+                    st.success(f"**{name}**\n\n{desc}")
+                else: 
+                    st.error(f"**🔒 {name}**\n\n{desc}")
 
 if __name__ == "__main__":
     if st.session_state['current_user']: main_app()
