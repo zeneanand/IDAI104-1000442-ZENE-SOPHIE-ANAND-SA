@@ -5,7 +5,6 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import seaborn as sns
-import time  # Needed for the video animation timing
 
 # --- 1. APP CONFIGURATION ---
 st.set_page_config(
@@ -40,6 +39,9 @@ else:
         st.session_state['user_stats']['max_alt_reached'] = 0
     if 'simulations_run' not in st.session_state['user_stats']:
         st.session_state['user_stats']['simulations_run'] = 0
+
+if 'show_launch_video' not in st.session_state:
+    st.session_state['show_launch_video'] = False
 
 # --- 3. CUSTOM CSS ---
 st.markdown("""
@@ -189,24 +191,8 @@ def main_app():
             fuel = st.slider("Fuel Mass (kg)", 50000, 300000, 100000)
             payload = st.slider("Payload Mass (kg)", 5000, 100000, 20000)
             
-            btn_launch = st.button("🔥 IGNITION", use_container_width=True)
-
-        with col_s2:
-            # --- THE VIDEO FIX ---
-            if btn_launch:
-                # 1. Create an empty container that we will fill with the video
-                video_ph = st.empty()
-                with video_ph.container():
-                    st.markdown("<h3 style='text-align: center; color: #00ff88;'>🚀 LAUNCH SEQUENCE INITIATED...</h3>", unsafe_allow_html=True)
-                    st.image("https://media.tenor.com/71TksD2Z6K8AAAAi/rocket-launch.gif", use_container_width=True)
-                
-                # 2. Let the video play for 2.5 seconds
-                time.sleep(2.5)
-                
-                # 3. Clear the video from the screen to make room for the chart!
-                video_ph.empty()
-                
-                # 4. Run Math and record stats
+            if st.button("🔥 IGNITION", use_container_width=True):
+                # Run math immediately
                 sim_data = run_physics_sim(fuel, payload, thrust)
                 st.session_state['sim_results'] = sim_data
                 st.session_state['user_stats']['simulations_run'] += 1
@@ -218,12 +204,21 @@ def main_app():
                 if max_alt >= lvl_info['target_alt']:
                     st.success(f"Target Reached! Max Altitude: {int(max_alt)}m (+50 XP)")
                     st.session_state['user_stats']['xp'] += 50
+                    st.session_state['show_launch_video'] = True  # Trigger the video!
                 elif max_alt <= 0:
                     st.error("Launch Failed: Thrust too weak for current mass!")
+                    st.session_state['show_launch_video'] = False
                 else:
                     st.warning(f"Max Altitude: {int(max_alt)}m. Fell short of {lvl_info['target_alt']}m.")
+                    st.session_state['show_launch_video'] = True # Still show video for trying
 
-            # 5. Always draw the chart if data exists
+        with col_s2:
+            # Show the video player if triggered
+            if st.session_state['show_launch_video']:
+                with st.expander("🎬 Mission Launch Camera Replay", expanded=True):
+                    # Using the exact video link requested in your assignment rubric!
+                    st.video("https://www.youtube.com/watch?v=22OCPbfY5SE")
+                    
             if 'sim_results' in st.session_state:
                 results_df = st.session_state['sim_results']
                 if not results_df.empty and results_df["Altitude"].max() > 0:
