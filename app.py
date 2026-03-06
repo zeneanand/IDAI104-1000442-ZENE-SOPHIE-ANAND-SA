@@ -5,6 +5,7 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import seaborn as sns
+import time
 
 # --- 1. APP CONFIGURATION ---
 st.set_page_config(
@@ -34,14 +35,10 @@ if 'user_stats' not in st.session_state:
         'max_alt_reached': 0
     }
 else:
-    # Migration checks for older sessions
     if 'max_alt_reached' not in st.session_state['user_stats']:
         st.session_state['user_stats']['max_alt_reached'] = 0
     if 'simulations_run' not in st.session_state['user_stats']:
         st.session_state['user_stats']['simulations_run'] = 0
-
-if 'show_launch_video' not in st.session_state:
-    st.session_state['show_launch_video'] = False
 
 # --- 3. CUSTOM CSS ---
 st.markdown("""
@@ -115,7 +112,6 @@ def update_level():
         st.balloons()
     st.session_state['user_stats']['level'] = new_level
 
-# --- 5. VISUAL AVATAR ---
 def draw_rocket_avatar(level):
     fig, ax = plt.subplots(figsize=(2, 2))
     fig.patch.set_facecolor('#0E1117')
@@ -127,7 +123,7 @@ def draw_rocket_avatar(level):
     ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis('off')
     return fig
 
-# --- 6. PAGE ROUTING ---
+# --- 5. PAGE ROUTING ---
 def login_page():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -158,7 +154,6 @@ def main_app():
         fig_avatar = draw_rocket_avatar(lvl)
         st.pyplot(fig_avatar)
         
-        # XP Progress Bar
         next_lvl = min(lvl + 1, max(LEVEL_DATA.keys()))
         next_xp = LEVEL_DATA[next_lvl]["xp_needed"]
         
@@ -191,8 +186,23 @@ def main_app():
             fuel = st.slider("Fuel Mass (kg)", 50000, 300000, 100000)
             payload = st.slider("Payload Mass (kg)", 5000, 100000, 20000)
             
-            if st.button("🔥 IGNITION", use_container_width=True):
-                # Run math immediately
+            btn_launch = st.button("🔥 IGNITION", use_container_width=True)
+
+        with col_s2:
+            # --- THE GIF FIX ---
+            if btn_launch:
+                # 1. Create a placeholder to hold the GIF
+                gif_ph = st.empty()
+                # 2. Display the rocket launch GIF from Giphy
+                gif_ph.image("https://media.giphy.com/media/xT0GqimU9dTwmE5lra/giphy.gif", caption="🚀 LIFT OFF IN PROGRESS...", use_container_width=True)
+                
+                # 3. Force the app to wait 3 seconds so you can watch the GIF
+                time.sleep(3)
+                
+                # 4. Clear the GIF from the screen
+                gif_ph.empty()
+                
+                # 5. Run the math and check the win conditions
                 sim_data = run_physics_sim(fuel, payload, thrust)
                 st.session_state['sim_results'] = sim_data
                 st.session_state['user_stats']['simulations_run'] += 1
@@ -204,21 +214,12 @@ def main_app():
                 if max_alt >= lvl_info['target_alt']:
                     st.success(f"Target Reached! Max Altitude: {int(max_alt)}m (+50 XP)")
                     st.session_state['user_stats']['xp'] += 50
-                    st.session_state['show_launch_video'] = True  # Trigger the video!
                 elif max_alt <= 0:
                     st.error("Launch Failed: Thrust too weak for current mass!")
-                    st.session_state['show_launch_video'] = False
                 else:
                     st.warning(f"Max Altitude: {int(max_alt)}m. Fell short of {lvl_info['target_alt']}m.")
-                    st.session_state['show_launch_video'] = True # Still show video for trying
 
-        with col_s2:
-            # Show the video player if triggered
-            if st.session_state['show_launch_video']:
-                with st.expander("🎬 Mission Launch Camera Replay", expanded=True):
-                    # Using the exact video link requested in your assignment rubric!
-                    st.video("https://www.youtube.com/watch?v=22OCPbfY5SE")
-                    
+            # Always display the chart if simulation data exists in the session
             if 'sim_results' in st.session_state:
                 results_df = st.session_state['sim_results']
                 if not results_df.empty and results_df["Altitude"].max() > 0:
