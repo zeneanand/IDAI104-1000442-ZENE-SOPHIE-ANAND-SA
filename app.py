@@ -1,4 +1,4 @@
-import streamlit as st
+]import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -38,6 +38,10 @@ else:
         st.session_state['user_stats']['max_alt_reached'] = 0
     if 'simulations_run' not in st.session_state['user_stats']:
         st.session_state['user_stats']['simulations_run'] = 0
+
+# Memory for the GIF!
+if 'has_launched' not in st.session_state:
+    st.session_state['has_launched'] = False
 
 # --- 3. CUSTOM CSS ---
 st.markdown("""
@@ -168,6 +172,7 @@ def main_app():
         st.divider()
         if st.button("Abort Mission (Logout)"):
             st.session_state['current_user'] = None
+            st.session_state['has_launched'] = False  # Reset GIF on logout
             st.rerun()
 
     # --- DASHBOARD TABS ---
@@ -188,12 +193,10 @@ def main_app():
             btn_launch = st.button("🔥 IGNITION", use_container_width=True)
 
         with col_s2:
-            # --- THE SIMPLEST GIF IMPLEMENTATION ---
+            # 1. Capture the launch click and run the math
             if btn_launch:
-                # Show realistic rocket launch GIF directly
-                st.image("https://media1.tenor.com/m/71TksD2Z6K8AAAAd/rocket-launch.gif", caption="LIFT OFF IN PROGRESS...", use_container_width=True)
+                st.session_state['has_launched'] = True
                 
-                # Run math logic
                 sim_data = run_physics_sim(fuel, payload, thrust)
                 st.session_state['sim_results'] = sim_data
                 st.session_state['user_stats']['simulations_run'] += 1
@@ -210,17 +213,21 @@ def main_app():
                 else:
                     st.warning(f"Max Altitude: {int(max_alt)}m. Fell short of {lvl_info['target_alt']}m.")
 
-            # Always draw the chart below the GIF if data exists
-            if 'sim_results' in st.session_state:
-                results_df = st.session_state['sim_results']
-                if not results_df.empty and results_df["Altitude"].max() > 0:
-                    fig = px.line(
-                        results_df, x="Time", y="Altitude", 
-                        title="Flight Path Trajectory", template="plotly_dark",
-                        labels={"Time": "Time (s)", "Altitude": "Altitude (m)"}
-                    )
-                    fig.add_hline(y=lvl_info['target_alt'], line_dash="dash", line_color="red", annotation_text="TARGET ALTITUDE")
-                    st.plotly_chart(fig, use_container_width=True)
+            # 2. If a launch has occurred, permanently show the GIF and the Chart
+            if st.session_state['has_launched']:
+                # Reliable Giphy GIF Link!
+                st.image("https://media.giphy.com/media/3o7btQ0NESY8zBkuo8/giphy.gif", caption="🚀 LIFT OFF!", use_container_width=True)
+                
+                if 'sim_results' in st.session_state:
+                    results_df = st.session_state['sim_results']
+                    if not results_df.empty and results_df["Altitude"].max() > 0:
+                        fig = px.line(
+                            results_df, x="Time", y="Altitude", 
+                            title="Flight Path Trajectory", template="plotly_dark",
+                            labels={"Time": "Time (s)", "Altitude": "Altitude (m)"}
+                        )
+                        fig.add_hline(y=lvl_info['target_alt'], line_dash="dash", line_color="red", annotation_text="TARGET ALTITUDE")
+                        st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
         st.title("Historical Mission Data")
