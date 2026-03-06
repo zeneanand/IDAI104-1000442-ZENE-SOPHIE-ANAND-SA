@@ -5,7 +5,6 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import seaborn as sns
-import random
 
 # --- 1. APP CONFIGURATION ---
 st.set_page_config(
@@ -44,10 +43,10 @@ st.markdown("""
 def load_data():
     try:
         df = pd.read_csv("rocket_missions.csv")
-        # Clean column names to prevent KeyErrors
+        # Clean column names to prevent hidden space KeyErrors
         df.columns = df.columns.str.strip()
         
-        # Target numeric columns required by the rubric
+        # Target numeric columns expected in the dataset
         numeric_cols = [
             'Mission Cost', 'Payload Weight', 'Fuel Consumption', 
             'Distance from Earth', 'Scientific Yield', 'Crew Size', 
@@ -151,7 +150,7 @@ def main_app():
         st.divider()
         st.subheader("💡 Flight Insights")
         st.info("Newton's 2nd Law: $a = (Thrust - Weight) / Mass$.")
-        st.warning("As fuel burns, mass decreases, causing acceleration to increase even if thrust is constant! ")
+        st.warning("As fuel burns, mass decreases, causing acceleration to increase even if thrust is constant!")
         
         if st.button("Abort Mission (Logout)"):
             st.session_state['current_user'] = None
@@ -196,45 +195,52 @@ def main_app():
         st.title("Historical Mission Data")
         if df is not None:
             # Data Exploration Evidence (For the 10 marks in Preprocessing)
-            with st.expander("🔍 View Raw Dataset Exploration (EDA)"):
+            with st.expander("🔍 View Raw Dataset Exploration (EDA) & Troubleshooting"):
+                st.write("**Dataset Columns Found:**", list(df.columns))
+                st.write("**First 5 Rows:**")
                 st.write(df.head())
+                st.write("**Statistical Summary:**")
                 st.write(df.describe())
 
-            # The 5 Required Visualizations + Heatmap
+            # The 5 Required Visualizations + Heatmap with Safety Checks
             c1, c2 = st.columns(2)
             with c1:
                 # 1. Scatter Plot (Payload vs Fuel)
-                fig1 = px.scatter(df, x="Payload Weight", y="Fuel Consumption", color="Mission Success", title="1. Payload vs Fuel Consumption ")
-                st.plotly_chart(fig1, use_container_width=True)
+                if {"Payload Weight", "Fuel Consumption", "Mission Success"}.issubset(df.columns):
+                    fig1 = px.scatter(df, x="Payload Weight", y="Fuel Consumption", color="Mission Success", title="1. Payload vs Fuel Consumption")
+                    st.plotly_chart(fig1, use_container_width=True)
+                else:
+                    st.error("Chart 1 Error: Missing required columns. Check the 'EDA' expander above to see available columns.")
                 
                 # 3. Line Chart (Duration vs Distance)
-                if 'Distance from Earth' in df.columns and 'Mission Duration' in df.columns:
+                if {"Distance from Earth", "Mission Duration"}.issubset(df.columns):
                     df_sorted = df.sort_values("Distance from Earth")
-                    fig3 = px.line(df_sorted, x="Distance from Earth", y="Mission Duration", title="3. Mission Duration vs Distance ")
+                    fig3 = px.line(df_sorted, x="Distance from Earth", y="Mission Duration", title="3. Mission Duration vs Distance")
                     st.plotly_chart(fig3, use_container_width=True)
 
                 # 5. Scatter Plot (Scientific Yield vs Cost)
-                if 'Scientific Yield' in df.columns and 'Mission Cost' in df.columns:
-                    fig5 = px.scatter(df, x="Mission Cost", y="Scientific Yield", size="Crew Size", color="Mission Success", title="5. Scientific Yield vs Mission Cost ")
+                if {"Mission Cost", "Scientific Yield", "Crew Size", "Mission Success"}.issubset(df.columns):
+                    fig5 = px.scatter(df, x="Mission Cost", y="Scientific Yield", size="Crew Size", color="Mission Success", title="5. Scientific Yield vs Mission Cost")
                     st.plotly_chart(fig5, use_container_width=True)
 
             with c2:
                 # 2. Bar Chart (Cost vs Success)
-                avg_cost = df.groupby("Mission Success")["Mission Cost"].mean().reset_index()
-                fig2 = px.bar(avg_cost, x="Mission Success", y="Mission Cost", color="Mission Success", title="2. Avg Mission Cost: Success vs Failure ")
-                st.plotly_chart(fig2, use_container_width=True)
+                if {"Mission Success", "Mission Cost"}.issubset(df.columns):
+                    avg_cost = df.groupby("Mission Success")["Mission Cost"].mean().reset_index()
+                    fig2 = px.bar(avg_cost, x="Mission Success", y="Mission Cost", color="Mission Success", title="2. Avg Mission Cost: Success vs Failure")
+                    st.plotly_chart(fig2, use_container_width=True)
                 
                 # 4. Box Plot (Crew Size vs Success)
-                fig4 = px.box(df, x="Mission Success", y="Crew Size", title="4. Crew Size vs Mission Success ")
-                st.plotly_chart(fig4, use_container_width=True)
+                if {"Mission Success", "Crew Size"}.issubset(df.columns):
+                    fig4 = px.box(df, x="Mission Success", y="Crew Size", title="4. Crew Size vs Mission Success")
+                    st.plotly_chart(fig4, use_container_width=True)
                 
                 # 6. Correlation Heatmap
-                st.write("**6. Feature Correlation Heatmap** ")
+                st.write("**6. Feature Correlation Heatmap**")
                 fig_h, ax_h = plt.subplots()
                 fig_h.patch.set_facecolor('#0E1117')
                 ax_h.set_facecolor('#0E1117')
                 sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="mako", ax=ax_h)
-                # Change tick colors to white for dark theme
                 ax_h.tick_params(colors='white')
                 st.pyplot(fig_h)
         else:
