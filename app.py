@@ -1,4 +1,4 @@
-]import streamlit as st
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -39,7 +39,6 @@ else:
     if 'simulations_run' not in st.session_state['user_stats']:
         st.session_state['user_stats']['simulations_run'] = 0
 
-# Memory for the GIF!
 if 'has_launched' not in st.session_state:
     st.session_state['has_launched'] = False
 
@@ -78,11 +77,9 @@ def run_physics_sim(fuel, payload, thrust):
     g = 9.81
     burn_rate = fuel / 100.0 if fuel > 0 else 1 
     dry_mass = 50000
-    
     v, alt = 0.0, 0.0
     curr_fuel = fuel
     path = [{"Time": 0, "Altitude": 0.0, "Velocity": 0.0}]
-    
     for t in range(1, 301): 
         total_m = dry_mass + payload + max(0, curr_fuel)
         if curr_fuel > 0:
@@ -90,17 +87,13 @@ def run_physics_sim(fuel, payload, thrust):
             curr_fuel -= burn_rate
         else:
             accel = -g 
-            
         v += accel
         alt += v
-        
         if alt <= 0 and t > 2: 
             alt = 0
             path.append({"Time": t, "Altitude": alt, "Velocity": v})
             break
-            
         path.append({"Time": t, "Altitude": max(0, alt), "Velocity": v})
-        
     return pd.DataFrame(path)
 
 def update_level():
@@ -110,7 +103,6 @@ def update_level():
         if xp >= LEVEL_DATA[lvl]["xp_needed"]:
             new_level = lvl
             break
-            
     if new_level > st.session_state['user_stats']['level']:
         st.balloons()
     st.session_state['user_stats']['level'] = new_level
@@ -143,23 +135,16 @@ def login_page():
 def main_app():
     df = load_data()
     update_level()
-    
     lvl = st.session_state['user_stats']['level']
     lvl_info = LEVEL_DATA.get(lvl, LEVEL_DATA[max(LEVEL_DATA.keys())])
-    
-    # --- PERSISTENT SIDEBAR ---
     with st.sidebar:
         st.header(f"👨‍🚀 Cmdr. {st.session_state['current_user']}")
-        
         st.markdown(f"<h3 style='text-align: center; color: #ff4b4b;'>RANK: LVL {lvl}</h3>", unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center;'>{lvl_info['title']}</p>", unsafe_allow_html=True)
-        
         fig_avatar = draw_rocket_avatar(lvl)
         st.pyplot(fig_avatar)
-        
         next_lvl = min(lvl + 1, max(LEVEL_DATA.keys()))
         next_xp = LEVEL_DATA[next_lvl]["xp_needed"]
-        
         if lvl == max(LEVEL_DATA.keys()):
             st.progress(1.0)
             st.caption(f"XP: {st.session_state['user_stats']['xp']} (MAX RANK ACHIEVED)")
@@ -168,43 +153,33 @@ def main_app():
             st.progress(progress)
             st.caption(f"XP: {st.session_state['user_stats']['xp']} / {next_xp}")
             st.write(f"**Level {lvl} Goal:** Reach {lvl_info['target_alt']}m")
-        
         st.divider()
         if st.button("Abort Mission (Logout)"):
             st.session_state['current_user'] = None
-            st.session_state['has_launched'] = False  # Reset GIF on logout
+            st.session_state['has_launched'] = False
             st.rerun()
 
-    # --- DASHBOARD TABS ---
     tab1, tab2, tab3 = st.tabs(["🚀 Launch Sim", "📊 Mission Analytics", "🏅 Achievements"])
 
     with tab1:
         st.title(f"Level {lvl} Simulator: {lvl_info['title']}")
         st.write(f"**MISSION:** Adjust parameters to break the altitude target of **{lvl_info['target_alt']} meters**!")
-        
         col_s1, col_s2 = st.columns([1, 2])
-        
         with col_s1:
             st.subheader("Flight Parameters")
             thrust = st.slider("Engine Thrust (N)", 1000000, lvl_info["max_thrust"], min(4000000, lvl_info["max_thrust"]), step=500000)
             fuel = st.slider("Fuel Mass (kg)", 50000, 300000, 100000)
             payload = st.slider("Payload Mass (kg)", 5000, 100000, 20000)
-            
             btn_launch = st.button("🔥 IGNITION", use_container_width=True)
-
         with col_s2:
-            # 1. Capture the launch click and run the math
             if btn_launch:
                 st.session_state['has_launched'] = True
-                
                 sim_data = run_physics_sim(fuel, payload, thrust)
                 st.session_state['sim_results'] = sim_data
                 st.session_state['user_stats']['simulations_run'] += 1
-                
                 max_alt = sim_data["Altitude"].max()
                 if max_alt > st.session_state['user_stats']['max_alt_reached']:
                     st.session_state['user_stats']['max_alt_reached'] = max_alt
-                
                 if max_alt >= lvl_info['target_alt']:
                     st.success(f"Target Reached! Max Altitude: {int(max_alt)}m (+50 XP)")
                     st.session_state['user_stats']['xp'] += 50
@@ -212,25 +187,17 @@ def main_app():
                     st.error("Launch Failed: Thrust too weak for current mass!")
                 else:
                     st.warning(f"Max Altitude: {int(max_alt)}m. Fell short of {lvl_info['target_alt']}m.")
-
-            # 2. If a launch has occurred, permanently show the GIF and the Chart
             if st.session_state['has_launched']:
-                # Reliable Giphy GIF Link!
                 st.image("https://media.giphy.com/media/3o7btQ0NESY8zBkuo8/giphy.gif", caption="🚀 LIFT OFF!", use_container_width=True)
-                
                 if 'sim_results' in st.session_state:
                     results_df = st.session_state['sim_results']
                     if not results_df.empty and results_df["Altitude"].max() > 0:
-                        fig = px.line(
-                            results_df, x="Time", y="Altitude", 
-                            title="Flight Path Trajectory", template="plotly_dark",
-                            labels={"Time": "Time (s)", "Altitude": "Altitude (m)"}
-                        )
+                        fig = px.line(results_df, x="Time", y="Altitude", title="Flight Path Trajectory", template="plotly_dark", labels={"Time": "Time (s)", "Altitude": "Altitude (m)"})
                         fig.add_hline(y=lvl_info['target_alt'], line_dash="dash", line_color="red", annotation_text="TARGET ALTITUDE")
                         st.plotly_chart(fig, use_container_width=True)
 
     with tab2:
-        st.title("Historical Mission Data")
+        st.title("Historical Mission Data Analysis") [cite: 1, 2]
         if df is not None:
             c_payload = get_col(df, 'payload')
             c_fuel = get_col(df, 'fuel')
@@ -240,33 +207,27 @@ def main_app():
             c_cost = get_col(df, 'cost')
             c_yield = get_col(df, 'yield')
             c_crew = get_col(df, 'crew')
-
             c1, c2 = st.columns(2)
             with c1:
                 if c_payload and c_fuel and c_success:
-                    fig1 = px.scatter(df, x=c_payload, y=c_fuel, color=c_success, title="1. Payload vs Fuel Consumption")
+                    fig1 = px.scatter(df, x=c_payload, y=c_fuel, color=c_success, title="Payload vs Fuel Consumption") [cite: 1, 2]
                     st.plotly_chart(fig1, use_container_width=True)
-                
                 if c_dist and c_dur:
                     df_sorted = df.sort_values(c_dist)
-                    fig3 = px.line(df_sorted, x=c_dist, y=c_dur, title="3. Mission Duration vs Distance")
+                    fig3 = px.line(df_sorted, x=c_dist, y=c_dur, title="Mission Duration vs Distance") [cite: 1, 2]
                     st.plotly_chart(fig3, use_container_width=True)
-
                 if c_cost and c_yield and c_crew and c_success:
-                    fig5 = px.scatter(df, x=c_cost, y=c_yield, size=c_crew, color=c_success, title="5. Scientific Yield vs Cost")
+                    fig5 = px.scatter(df, x=c_cost, y=c_yield, size=c_crew, color=c_success, title="Scientific Yield vs Cost") [cite: 1, 2]
                     st.plotly_chart(fig5, use_container_width=True)
-
             with c2:
                 if c_success and c_cost:
                     avg_cost = df.groupby(c_success)[c_cost].mean().reset_index()
-                    fig2 = px.bar(avg_cost, x=c_success, y=c_cost, color=c_success, title="2. Avg Mission Cost: Success vs Failure")
+                    fig2 = px.bar(avg_cost, x=c_success, y=c_cost, color=c_success, title="Avg Mission Cost: Success vs Failure") [cite: 1, 2]
                     st.plotly_chart(fig2, use_container_width=True)
-                
                 if c_success and c_crew:
-                    fig4 = px.box(df, x=c_success, y=c_crew, title="4. Crew Size vs Mission Success")
+                    fig4 = px.box(df, x=c_success, y=c_crew, title="Crew Size vs Mission Success") [cite: 1, 2]
                     st.plotly_chart(fig4, use_container_width=True)
-                
-                st.write("**6. Feature Correlation Heatmap**")
+                st.write("**Feature Correlation Heatmap**") [cite: 1, 2]
                 fig_h, ax_h = plt.subplots(figsize=(8, 6))
                 fig_h.patch.set_facecolor('#0E1117')
                 ax_h.set_facecolor('#0E1117')
@@ -276,15 +237,11 @@ def main_app():
                 plt.tight_layout()
                 st.pyplot(fig_h)
         else:
-            st.error("Missing 'rocket_missions.csv'. Please upload it to your GitHub repository.")
+            st.error("Missing 'rocket_missions.csv'. Please upload it to your GitHub repository.") [cite: 2]
 
     with tab3:
         st.title("🏆 Commander Achievements")
-        st.write("Complete tasks in the simulator to unlock badges!")
-        
-        cols = st.columns(3)
         stats = st.session_state['user_stats']
-        
         achievements = [
             ("🌱 Flight Cadet", "Run your first simulation.", stats['simulations_run'] >= 1),
             ("🔥 Orbital Veteran", "Run 5 total simulations.", stats['simulations_run'] >= 5),
@@ -293,13 +250,11 @@ def main_app():
             ("⭐ XP Hoarder", "Accumulate 1000 total XP.", stats['xp'] >= 1000),
             ("🚀 Karman Line", "Reach an altitude of 100,000m.", stats['max_alt_reached'] >= 100000)
         ]
-        
+        cols = st.columns(3)
         for i, (name, desc, status) in enumerate(achievements):
             with cols[i % 3]:
-                if status: 
-                    st.success(f"**{name}**\n\n{desc}")
-                else: 
-                    st.error(f"**🔒 {name}**\n\n{desc}")
+                if status: st.success(f"**{name}**\n\n{desc}")
+                else: st.error(f"**🔒 {name}**\n\n{desc}")
 
 if __name__ == "__main__":
     if st.session_state['current_user']: main_app()
