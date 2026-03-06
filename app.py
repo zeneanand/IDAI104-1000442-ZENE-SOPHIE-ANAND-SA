@@ -67,7 +67,7 @@ def load_data():
 def run_physics_sim(fuel, payload):
     # Constants
     g = 9.81
-    thrust = 1500000
+    thrust = 4500000  # 🚀 UPGRADED THRUST: Enough power to lift max weight!
     burn_rate = 450
     dry_mass = 50000
     
@@ -78,7 +78,7 @@ def run_physics_sim(fuel, payload):
     # Initialize point 0 to prevent Plotly ValueError (Empty DataFrame)
     path.append({"Time": 0, "Altitude": 0.0, "Velocity": 0.0})
     
-    for t in range(1, 201):
+    for t in range(1, 301): # Extended time to see the full flight
         total_m = dry_mass + payload + curr_fuel
         
         # Physics Logic: F = ma
@@ -86,13 +86,13 @@ def run_physics_sim(fuel, payload):
             accel = (thrust - (total_m * g)) / total_m
             curr_fuel -= burn_rate
         else:
-            accel = -g # Gravity takes over
+            accel = -g # Gravity takes over when fuel runs out
             
         v += accel
         alt += v
         
-        # Ground collision check
-        if alt < 0: 
+        # Ground collision check (only triggers after initial lift-off)
+        if alt <= 0 and t > 5: 
             alt = 0
             path.append({"Time": t, "Altitude": alt, "Velocity": v})
             break
