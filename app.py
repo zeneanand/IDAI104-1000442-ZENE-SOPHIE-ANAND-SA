@@ -5,7 +5,6 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import seaborn as sns
-import time
 
 # --- 1. APP CONFIGURATION ---
 st.set_page_config(
@@ -189,20 +188,12 @@ def main_app():
             btn_launch = st.button("🔥 IGNITION", use_container_width=True)
 
         with col_s2:
-            # --- THE GIF FIX ---
+            # --- THE SIMPLEST GIF IMPLEMENTATION ---
             if btn_launch:
-                # 1. Create a placeholder to hold the GIF
-                gif_ph = st.empty()
-                # 2. Display the rocket launch GIF from Giphy
-                gif_ph.image("https://media.giphy.com/media/xT0GqimU9dTwmE5lra/giphy.gif", caption="🚀 LIFT OFF IN PROGRESS...", use_container_width=True)
+                # Show realistic rocket launch GIF directly
+                st.image("https://media1.tenor.com/m/71TksD2Z6K8AAAAd/rocket-launch.gif", caption="LIFT OFF IN PROGRESS...", use_container_width=True)
                 
-                # 3. Force the app to wait 3 seconds so you can watch the GIF
-                time.sleep(3)
-                
-                # 4. Clear the GIF from the screen
-                gif_ph.empty()
-                
-                # 5. Run the math and check the win conditions
+                # Run math logic
                 sim_data = run_physics_sim(fuel, payload, thrust)
                 st.session_state['sim_results'] = sim_data
                 st.session_state['user_stats']['simulations_run'] += 1
@@ -219,7 +210,7 @@ def main_app():
                 else:
                     st.warning(f"Max Altitude: {int(max_alt)}m. Fell short of {lvl_info['target_alt']}m.")
 
-            # Always display the chart if simulation data exists in the session
+            # Always draw the chart below the GIF if data exists
             if 'sim_results' in st.session_state:
                 results_df = st.session_state['sim_results']
                 if not results_df.empty and results_df["Altitude"].max() > 0:
