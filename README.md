@@ -47,26 +47,26 @@ The app includes the five compulsory visualizations and an interactive simulatio
 
 As required by Stage 1 of the brief, this project integrates the following research insights:
 
-*
+
 **Newton’s Second Law ($F = ma$):** Rocket movement is determined by the net force, where upward **Thrust** must exceed the downward forces of **Gravity** and **Drag**.
 
 
-* 
+ 
 **Mass Dynamics:** As fuel burns, the rocket's mass decreases significantly. Mathematically, this causes **acceleration to increase over time** even if engine thrust remains constant.
 
 
-* 
+
 **Atmospheric Drag:** At higher altitudes, the atmosphere becomes thinner, leading to reduced air resistance (drag) and improved velocity.
 
 
 
 ### 💡 Guiding Questions Answered
 
-* 
+
 **How does adding payload affect altitude?** Greater payload increases mass, which reduces initial acceleration ($a = F/m$), requiring more thrust to reach the same altitude.
 
 
-* 
+
 **How long does it take to reach orbit?** Our simulation models the step-by-step update of velocity and altitude to estimate arrival times.
 
 
@@ -90,19 +90,19 @@ To meet the deployment criteria, the repository is organized as follows:
 
 ## 🛠️ Technologies Used
 
-* 
+
 **Streamlit:** For building the interactive web dashboard.
 
 
-* 
+
 **Pandas:** For data preprocessing, cleaning, and type conversion.
 
 
-* 
+
 **Plotly & Seaborn:** For creating interactive and statistical visualizations.
 
 
-* 
+
 **NumPy:** For handling numerical calculations in the physics simulation.
 
 
