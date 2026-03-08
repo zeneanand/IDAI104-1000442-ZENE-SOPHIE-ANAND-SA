@@ -35,34 +35,19 @@ The app includes the five compulsory visualizations and an interactive simulatio
 | Section | Visualisations |
 | --- | --- |
 | 📈 **Simulation** | <br>**Live Rocket Trajectory:** Line chart showing Altitude over Time using step-by-step differential equations.
-
- |
 | 🚀 **Resource Analysis** | <br>**Scatter Plot:** Payload Weight vs. Fuel Consumption.
-
- |
 | 💰 **Financial Insights** | <br>**Bar Chart:** Average Mission Cost comparing Success vs. Failure.
-
- |
 | ⏳ **Logistics** | <br>**Line Chart:** Mission Duration vs. Distance from Earth.
-
- |
 | 👨‍🚀 **Crew & Success** | <br>**Box Plot:** Crew Size distribution across Mission Success categories.
-
- |
 | 🔬 **Scientific Value** | <br>**Scatter Plot:** Scientific Yield vs. Mission Cost.
-
- |
 | 🧠 **Correlations** | <br>**Heatmap:** Statistical relationships between all numeric mission factors.
-
- |
-
 ---
 
 ## 🔬 Research Context — Rocket Dynamics & Newton's Law
 
 As required by Stage 1 of the brief, this project integrates the following research insights:
 
-* 
+*
 **Newton’s Second Law ($F = ma$):** Rocket movement is determined by the net force, where upward **Thrust** must exceed the downward forces of **Gravity** and **Drag**.
 
 
