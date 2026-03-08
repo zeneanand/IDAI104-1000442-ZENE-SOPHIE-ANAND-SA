@@ -1,6 +1,4 @@
-To achieve the **Distinguished (60 Marks)** grade, your `README.md` must demonstrate deep research, mathematical soundness, and clear connections to the real-world dataset.
 
-Below is a professional `README.md` template tailored to your specific project and the requirements of your assessment brief.
 
 ---
 
