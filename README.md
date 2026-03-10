@@ -81,7 +81,7 @@ This project tightly integrates mathematical principles with interactive UI comp
 The app includes the five compulsory visualizations and an interactive simulation:
 
 | Section | Visualisations |
-| --- | --- |
+
 | 📈 **Simulation** | 
 
 <br>**Live Rocket Trajectory:** Area chart showing Altitude over Time using step-by-step differential equations. |
@@ -103,7 +103,7 @@ The app includes the five compulsory visualizations and an interactive simulatio
 | 🧠 **Correlations** | 
 
 <br>**Heatmap:** Statistical relationships between all numeric mission factors. |
-| --- | --- |
+
 ---
 
 ## 🔬 Research Context — Rocket Dynamics & Newton's Law
