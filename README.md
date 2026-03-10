@@ -26,6 +26,33 @@ Access the live mission control dashboard directly via Streamlit Community Cloud
 
 ---
 
+## 📸 Application Tour
+
+Here is a look inside the AstroDash Mission Control Terminal:
+
+### 1. Initialization & Authentication
+Users start at the login terminal to register their Commander ID before accessing telemetry.
+![Login Terminal](Screenshot%202026-03-10%20at%2011.21.56%20AM.jpg)
+
+### 2. Live Launch Simulator
+Interactive physics simulation where users adjust thrust, fuel, and payload to reach target altitudes. Features live trajectory tracking and telemetry (Apogee, Max Velocity, G-Force).
+![Launch Simulator Controls](Screenshot%202026-03-10%20at%2011.21.08%20AM.jpg)
+
+### 3. Mission Analytics Archive
+Comprehensive historical data analysis featuring multiple interactive Plotly charts, including scatter plots, bar charts, line graphs, and correlation heatmaps.
+![Analytics Dashboard 1](Screenshot%202026-03-10%20at%2011.21.17%20AM.jpg)
+![Analytics Dashboard 2](Screenshot%202026-03-10%20at%2011.21.27%20AM.jpg)
+
+### 4. Commander Achievements
+A gamified progression system that awards badges based on simulation activity, highest altitude reached, and accumulated XP.
+![Achievements Tab](Screenshot%202026-03-10%20at%2011.21.37%20AM.jpg)
+
+### 5. Flight Manual & Orbital Physics
+An educational breakdown of Newton's Second Law and the interactive parameters affecting rocket flight.
+![Flight Manual](Screenshot%202026-03-10%20at%2011.21.42%20AM.jpg)
+
+---
+
 ## 🚀 Deployment Instructions
 
 ### Local Deployment
@@ -58,7 +85,7 @@ streamlit run app.py
 
 This app is optimized for seamless deployment on Streamlit Community Cloud:
 
-1. Push your code, `rocket_missions.csv`, and `requirements.txt` to a public GitHub repository.
+1. Push your code, `rocket_missions.csv`, images, and `requirements.txt` to a public GitHub repository.
 2. Log in to [share.streamlit.io](https://share.streamlit.io/).
 3. Click **"New app"**, select your repository, set the branch to `main`, and the main file path to `app.py`.
 4. Click **Deploy**.
@@ -75,7 +102,6 @@ This project tightly integrates mathematical principles with interactive UI comp
 * **Data Visualization Integration:** Plotly Express is hooked directly to the simulation outputs to generate a live trajectory graph, while historical CSV data is aggregated and mapped to dynamic scatter plots, box plots, and heatmaps.
 
 ---
-
 ## 🎯 What Does This App Visualise?
 
 The app includes the five compulsory visualizations and an interactive simulation, broken down as follows:
@@ -89,7 +115,6 @@ The app includes the five compulsory visualizations and an interactive simulatio
 | 👨‍🚀 **Crew & Success** | **Box Plot** | **Human Factors:** Shows Crew Size distribution across Mission Success categories. |
 | 🔬 **Scientific Value** | **Scatter Plot** | **ROI:** Maps the overall Scientific Yield against the Mission Cost. |
 | 🧠 **Correlations** | **Heatmap** | **Statistical Overview:** Highlights the mathematical relationships between all numeric mission factors. |
-
 ---
 
 ## 🔬 Research Context — Rocket Dynamics & Newton's Law
@@ -113,10 +138,14 @@ To meet the deployment criteria, the repository is organized as follows:
 
 ```text
 📦 IDAI104-1000442-ZENE-SOPHIE-ANAND-SA 
-├── app.py                # Main application code with simulation & plots
-├── requirements.txt      # List of dependencies (Streamlit, Pandas, Plotly, etc.)
-├── rocket_missions.csv   # The processed aerospace dataset
-└── README.md             # This documentation
+├── app.py                                   # Main application code with simulation & plots
+├── requirements.txt                         # List of dependencies
+├── rocket_missions.csv                      # The processed aerospace dataset
+├── Screenshot 2026-03-10 at 11.20.58 AM.jpg # App screenshot
+├── Screenshot 2026-03-10 at 11.21.08 AM.jpg # App screenshot
+├── Screenshot 2026-03-10 at 11.21.17 AM.jpg # App screenshot
+├── ...                                      # Other screenshot files
+└── README.md                                # This documentation
 
 ```
 
@@ -142,4 +171,5 @@ To meet the deployment criteria, the repository is organized as follows:
 ---
 
 *🌌 Aerospace Data Insights | Mathematics for AI-I Summative Assessment*
+
 ```
