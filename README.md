@@ -22,34 +22,7 @@ Built under **Scenario 1: Rocket Launch Path Visualization**, the app fulfills t
 
 Access the live mission control dashboard directly via Streamlit Community Cloud:
 
-> **[🚀 Launch AstroDash: Mission Control Here](https://idai104-1000442-zene-sophie-anand-sa.streamlit.app/)**
-
----
-
-## 📸 Application Tour
-
-Here is a look inside the AstroDash Mission Control Terminal:
-
-### 1. Initialization & Authentication
-Users start at the login terminal to register their Commander ID before accessing telemetry.
-![Login Terminal](Screenshot%202026-03-10%20at%2011.21.56%20AM.jpg)
-
-### 2. Live Launch Simulator
-Interactive physics simulation where users adjust thrust, fuel, and payload to reach target altitudes. Features live trajectory tracking and telemetry (Apogee, Max Velocity, G-Force).
-![Launch Simulator Controls](Screenshot%202026-03-10%20at%2011.21.08%20AM.jpg)
-
-### 3. Mission Analytics Archive
-Comprehensive historical data analysis featuring multiple interactive Plotly charts, including scatter plots, bar charts, line graphs, and correlation heatmaps.
-![Analytics Dashboard 1](Screenshot%202026-03-10%20at%2011.21.17%20AM.jpg)
-![Analytics Dashboard 2](Screenshot%202026-03-10%20at%2011.21.27%20AM.jpg)
-
-### 4. Commander Achievements
-A gamified progression system that awards badges based on simulation activity, highest altitude reached, and accumulated XP.
-![Achievements Tab](Screenshot%202026-03-10%20at%2011.21.37%20AM.jpg)
-
-### 5. Flight Manual & Orbital Physics
-An educational breakdown of Newton's Second Law and the interactive parameters affecting rocket flight.
-![Flight Manual](Screenshot%202026-03-10%20at%2011.21.42%20AM.jpg)
+> **[🚀 Launch AstroDash: Mission Control Here](https://idai104-1000442-zene-sophie-anand-sa.streamlit.app/)**)
 
 ---
 
