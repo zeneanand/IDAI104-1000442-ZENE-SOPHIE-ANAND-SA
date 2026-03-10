@@ -103,7 +103,7 @@ The app includes the five compulsory visualizations and an interactive simulatio
 | 🧠 **Correlations** | 
 
 <br>**Heatmap:** Statistical relationships between all numeric mission factors. |
-
+| --- | --- |
 ---
 
 ## 🔬 Research Context — Rocket Dynamics & Newton's Law
