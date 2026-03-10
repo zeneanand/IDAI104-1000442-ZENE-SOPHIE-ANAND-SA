@@ -218,7 +218,7 @@ def main_app():
             st.rerun()
 
     # --- DASHBOARD TABS ---
-    tab1, tab2, tab3 = st.tabs(["🚀 LAUNCH SIMULATOR", "📊 MISSION ANALYTICS", "🏅 ACHIEVEMENTS"])
+    tab1, tab2, tab3, tab4 = st.tabs(["🚀 LAUNCH SIMULATOR", "📊 MISSION ANALYTICS", "🏅 ACHIEVEMENTS", "📖 FLIGHT MANUAL"])
 
     with tab1:
         st.markdown(f"## SIMULATION PROTOCOL: <span style='color:{lvl_color}'>{lvl_info['title']}</span>", unsafe_allow_html=True)
@@ -295,7 +295,6 @@ def main_app():
             c_yield = get_col(df, 'yield')
             c_crew = get_col(df, 'crew')
 
-            # Standardize Plotly template for this tab
             theme = "plotly_dark"
             colors = ['#00f2ff', '#ff007b', '#00ff88']
 
@@ -324,7 +323,6 @@ def main_app():
                     fig4 = px.box(df, x=c_success, y=c_crew, color=c_success, title="Crew Size vs Success Rate", template=theme, color_discrete_sequence=colors)
                     st.plotly_chart(fig4, use_container_width=True)
                 
-                # --- UPGRADED PLOTLY HEATMAP ---
                 st.write("**Feature Correlation Heatmap**")
                 corr = df.corr(numeric_only=True)
                 fig_h = px.imshow(
@@ -372,6 +370,48 @@ def main_app():
                         </div>
                         <br>
                     """, unsafe_allow_html=True)
+
+    with tab4:
+        st.title("📖 Flight Manual & Orbital Physics")
+        st.write("Understanding the forces at play is critical for mission success. Review the telemetry principles below before adjusting your simulation parameters.")
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        
+        
+        with st.container(border=True):
+            st.markdown("### 🍎 Newton's Second Law of Motion")
+            st.write("States that the force acting on an object is equal to its mass times its acceleration ($F = ma$). In rocketry, this law governs how a rocket accelerates: the net force (thrust minus gravity and drag) determines the acceleration.")
+            st.markdown("<hr style='border-color: #1f2937;'>", unsafe_allow_html=True)
+            
+            f_col1, f_col2, f_col3 = st.columns(3)
+            with f_col1:
+                st.markdown("<h4 style='color:#00f2ff;'>🚀 Thrust</h4>", unsafe_allow_html=True)
+                st.write("The force produced by the rocket engine expelling exhaust gases. It pushes the rocket upward. In real missions, thrust must exceed the combined weight and drag to lift off.")
+            with f_col2:
+                st.markdown("<h4 style='color:#00ff88;'>💨 Drag</h4>", unsafe_allow_html=True)
+                st.write("Air resistance that opposes motion. It depends on velocity, atmospheric density, and rocket shape. Drag decreases as altitude increases because the atmosphere thins.")
+            with f_col3:
+                st.markdown("<h4 style='color:#ff007b;'>📦 Payload</h4>", unsafe_allow_html=True)
+                st.write("The cargo (satellites, crew, instruments) the rocket carries. Heavier payloads require more thrust and fuel to achieve the same altitude.")
+                
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("### 🎯 Guiding Questions for Your Project")
+        st.info("Expand the sections below to see how these physics principles tie directly into the simulation tab.")
+        
+        with st.expander("**How does adding more payload affect altitude?**"):
+            st.write("Heavier payload increases the total mass, which reduces overall acceleration. As a result, the max altitude decreases for the same amount of fuel.")
+            
+        with st.expander("**How does increasing thrust affect launch success?**"):
+            st.write("Higher thrust easily overcomes gravity and drag, yielding a faster launch. However, in a real environment, too much acceleration can cause immense structural stress on the vehicle.")
+            
+        with st.expander("**Does lower drag at higher altitudes improve speed?**"):
+            st.write("Yes! With less air resistance holding the rocket back in the upper atmosphere, the engines can accelerate the mass much more efficiently.")
+            
+        with st.expander("**How long would it take to reach orbit?**"):
+            st.write("Achieving orbit isn't just about going straight up—it requires reaching an orbital velocity of ~7.8 km/s sideways. Time depends heavily on the rocket's thrust profile and total mass.")
+            
+        with st.expander("**Can I compare simulation values to real mission data?**"):
+            st.write("Absolutely. You can use the historical dataset in the **Mission Analytics** tab to see real-world correlations between payload weight, fuel consumption, and mission success.")
 
 if __name__ == "__main__":
     if st.session_state['current_user']: main_app()
