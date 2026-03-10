@@ -78,31 +78,14 @@ This project tightly integrates mathematical principles with interactive UI comp
 
 ## 🎯 What Does This App Visualise?
 
-The app includes the five compulsory visualizations and an interactive simulation:
-
-| Section | Visualisations |
-| --- | --- |
-| 📈 **Simulation** | 
-
-<br>**Live Rocket Trajectory:** Area chart showing Altitude over Time using step-by-step differential equations. |
-| 🚀 **Resource Analysis** | 
-
-<br>**Scatter Plot:** Payload Weight vs. Fuel Consumption. |
-| 💰 **Financial Insights** | 
-
-<br>**Bar Chart:** Average Mission Cost comparing Success vs. Failure. |
-| ⏳ **Logistics** | 
-
-<br>**Line Chart:** Mission Duration vs. Distance from Earth. |
-| 👨‍🚀 **Crew & Success** | 
-
-<br>**Box Plot:** Crew Size distribution across Mission Success categories. |
-| 🔬 **Scientific Value** | 
-
-<br>**Scatter Plot:** Scientific Yield vs. Mission Cost. |
-| 🧠 **Correlations** | 
-
-<br>**Heatmap:** Statistical relationships between all numeric mission factors. |
+Section,Visualisations
+📈 Simulation,Live Rocket Trajectory: Area chart showing Altitude over Time using step-by-step differential equations.
+🚀 Resource Analysis,Scatter Plot: Payload Weight vs. Fuel Consumption.
+💰 Financial Insights,Bar Chart: Average Mission Cost comparing Success vs. Failure.
+⏳ Logistics,Line Chart: Mission Duration vs. Distance from Earth.
+👨‍🚀 Crew & Success,Box Plot: Crew Size distribution across Mission Success categories.
+🔬 Scientific Value,Scatter Plot: Scientific Yield vs. Mission Cost.
+🧠 Correlations,Heatmap: Statistical relationships between all numeric mission factors.
 
 ---
 
