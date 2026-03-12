@@ -96,21 +96,21 @@ A visual overview of the application's user interface, featuring comprehensive d
 
 ## 🖼️ SCREENSHOTS
 
-Below are the visual highlights of the dashboard. All source images can be found in the `/SCREEN SHOT` directory.
+Below are the visual highlights of the dashboard. All source images can be found in the `/SCREEN%20SHOT` directory.
 
 | Side Panel & Overview | Statistics & Analytics | User Management |
 | :---: | :---: | :---: |
-| ![Step 1](./SCREEN SHOT/1.png) | ![Step 2](./SCREEN SHOT/2.png) | ![Step 3](./SCREEN SHOT/3.png) |
+| ![Step 1](./SCREEN%20SHOT/1.png) | ![Step 2](./SCREEN%20SHOT/2.png) | ![Step 3](./SCREEN%20SHOT/3.png) |
 | **Main Navigation** | **Data Trends** | **Profile Settings** |
 
 | Notifications | Financial Reports | System Health |
 | :---: | :---: | :---: |
-| ![Step 4](./SCREEN SHOT/4.png) | ![Step 5](./SCREEN SHOT/5.png) | ![Step 6](./SCREEN SHOT/6.png) |
+| ![Step 4](./SCREEN%20SHOT/4.png) | ![Step 5](./SCREEN%20SHOT/5.png) | ![Step 6](./SCREEN%20SHOT/6.png) |
 | **Alerts UI** | **Revenue Charts** | **Server Logs** |
 
 | Dark Mode | Mobile Responsive | Final Summary |
 | :---: | :---: | :---: |
-| ![Step 7](./SCREEN SHOT/7.png) | ![Step 8](./SCREEN SHOT/8.png) | ![Step 9](./SCREEN SHOT/9.png) |
+| ![Step 7](./SCREEN%20SHOT/7.png) | ![Step 8](./SCREEN%20SHOT/8.png) | ![Step 9](./SCREEN%20SHOT/9.png) |
 | **Night Theme** | **Mobile View** | **Export Options** |
 
 ---
@@ -119,7 +119,7 @@ Below are the visual highlights of the dashboard. All source images can be found
 
 * **Adaptive Layout:** Fully responsive design that works on desktop, tablet, and mobile.
 * **Interactive Charts:** Dynamic data visualization using [Insert Library, e.g., Chart.js or Recharts].
-* **Theme Support:** Seamless switching between Light and Dark modes (see SCREEN SHOT 1 and 7).
+* **Theme Support:** Seamless switching between Light and Dark modes (see SCREEN%20SHOT 1 and 7).
 * **Real-time Updates:** Live data polling for system metrics.
 
 ## 🛠️ Tech Stack Used
