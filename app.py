@@ -158,7 +158,7 @@ def login_page():
         with st.container(border=True):
             st.markdown("<h1 style='text-align: center; color: #00f2ff;'>🚀 ASTRODASH</h1>", unsafe_allow_html=True)
             st.markdown("<h4 style='text-align: center; color: #a0aec0; margin-bottom: 30px;'>MISSION CONTROL TERMINAL</h4>", unsafe_allow_html=True)
-            u = st.text_input("ENTER COMMANDER ID", placeholder="e.g. Shepard, Armstrong, Ripley...")
+            u = st.text_input("ENTER COMMANDER ID", placeholder="get_started...")
             if st.button("INITIALIZE SYSTEMS", use_container_width=True):
                 if u: 
                     st.session_state['current_user'] = u.upper()
@@ -245,30 +245,35 @@ def main_app():
     with tab2:
         st.title("📊 Mission Analytics Archive")
         if df is not None:
-            c_payload, c_fuel, c_success = get_col(df, 'payload'), get_col(df, 'fuel'), get_col(df, 'success')
-            c_dist, c_dur, c_cost, c_yield = get_col(df, 'distance'), get_col(df, 'duration'), get_col(df, 'cost'), get_col(df, 'yield')
+            c_payload = get_col(df, 'payload')
+            c_fuel = get_col(df, 'fuel')
+            c_success = get_col(df, 'success')
+            c_dist = get_col(df, 'distance')
+            c_dur = get_col(df, 'duration')
+            c_cost = get_col(df, 'cost')
+            c_yield = get_col(df, 'yield')
             c_crew = get_col(df, 'crew')
 
             c1, c2 = st.columns(2)
             with c1:
                 if c_payload and c_fuel and c_success:
                     st.plotly_chart(px.scatter(df, x=c_payload, y=c_fuel, color=c_success, template="plotly_dark"), use_container_width=True)
-                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Successful missions (cyan) follow a specific efficiency corridor between mass and fuel.</div>', unsafe_allow_html=True)
+                    st.markdown("""<div class="insight-box"><b>🔍 INSIGHT:</b> Successful missions (cyan) typically follow a specific efficiency corridor between vessel mass and fuel consumption.</div>""", unsafe_allow_html=True)
                 if c_dist and c_dur:
                     st.plotly_chart(px.line(df.sort_values(c_dist), x=c_dist, y=c_dur, template="plotly_dark"), use_container_width=True)
-                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Slope spikes may indicate gravitational slingshots or mid-flight engine failures.</div>', unsafe_allow_html=True)
+                    st.markdown("""<div class="insight-box"><b>🔍 INSIGHT:</b> Slope spikes may indicate gravitational slingshots or mid-flight system re-alignments.</div>""", unsafe_allow_html=True)
                 if c_cost and c_yield:
                     st.plotly_chart(px.scatter(df, x=c_cost, y=c_yield, size=c_crew, color=c_success, template="plotly_dark"), use_container_width=True)
-                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Top-left entries represent high-efficiency missions with maximum scientific ROI.</div>', unsafe_allow_html=True)
+                    st.markdown("""<div class="insight-box"><b>🔍 INSIGHT:</b> Top-left entries represent high-efficiency missions with maximum scientific ROI per credit spent.</div>""", unsafe_allow_html=True)
             with c2:
                 if c_success and c_cost:
                     st.plotly_chart(px.bar(df.groupby(c_success)[c_cost].mean().reset_index(), x=c_success, y=c_cost, template="plotly_dark"), use_container_width=True)
-                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Failures often correlate with lower investment, pointing to structural or testing shortcuts.</div>', unsafe_allow_html=True)
+                    st.markdown("""<div class="insight-box"><b>🔍 INSIGHT:</b> Failure events often correlate with lower investment, pointing to potential structural or testing shortcuts.</div>""", unsafe_allow_html=True)
                 if c_success and c_crew:
                     st.plotly_chart(px.box(df, x=c_success, y=c_crew, template="plotly_dark"), use_container_width=True)
-                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Successful missions show a consistent median crew size, suggesting an optimal team density.</div>', unsafe_allow_html=True)
+                    st.markdown("""<div class="insight-box"><b>🔍 INSIGHT:</b> Successful missions show a consistent median crew size, suggesting an optimal team density for flight management.</div>""", unsafe_allow_html=True)
                 st.plotly_chart(px.imshow(df.corr(numeric_only=True), text_auto=".2f", template="plotly_dark"), use_container_width=True)
-                st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Strong correlations (values near 1.0) reveal the hard physical limits of the current rocket tech.</div>', unsafe_allow_html=True)
+                st.markdown("""<div class="insight-box"><b>🔍 INSIGHT:</b> Strong correlations (values near 1.0) reveal the hard physical limits between weight, fuel, and reach.</div>""", unsafe_allow_html=True)
 
     with tab3:
         st.title("🏆 Commendations & Badges")
@@ -286,7 +291,7 @@ def main_app():
             with cols[i % 3]:
                 card_class = "achieve-card-unlocked" if status else "achieve-card-locked"
                 status_txt = "UNLOCKED" if status else "LOCKED"
-                st.markdown(f'<div class="{card_class}"><h3>{name}</h3><p>{desc}</p><b>{status_txt}</b></div><br>', unsafe_allow_html=True)
+                st.markdown(f"""<div class="{card_class}"><h3>{name}</h3><p>{desc}</p><b>{status_txt}</b></div><br>""", unsafe_allow_html=True)
 
     with tab4:
         st.title("📖 Flight Manual & Orbital Physics")
@@ -308,7 +313,13 @@ def main_app():
             f3.write("Vessel cargo weight.")
         
         st.markdown("### 🎯 Mission Planning Insights")
-        st.markdown("""<div class="insight-box"><b>💡 ACADEMIC INSIGHT:</b> Launching in a vacuum would eliminate Drag, allowing for much higher velocities with identical fuel. This is why orbital stages are more efficient once they clear the atmosphere.</div>""", unsafe_allow_html=True)
+        st.markdown("""
+            <div class="insight-box">
+                <b>💡 ACADEMIC INSIGHT:</b> Launching in a vacuum would eliminate Drag, 
+                allowing for much higher velocities with identical fuel. This is why 
+                orbital stages are more efficient once they clear the atmosphere.
+            </div>
+        """, unsafe_allow_html=True)
         with st.expander("**Payload vs Altitude?**"): st.write("Heavier payloads decrease acceleration and apogee.")
         with st.expander("**Thrust vs Success?**"): st.write("Higher thrust overcomes gravity faster but increases structural G-stress.")
 
