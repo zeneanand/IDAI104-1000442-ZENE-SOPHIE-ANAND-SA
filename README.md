@@ -101,17 +101,13 @@ Below are the visual highlights of the dashboard. All source images can be found
 | Side Panel & Overview | Statistics & Analytics | User Management |
 | :---: | :---: | :---: |
 | ![Step 1](./SCREEN%20SHOT/1.png) | ![Step 2](./SCREEN%20SHOT/2.png) | ![Step 3](./SCREEN%20SHOT/3.png) |
-| **Main Navigation** | **Data Trends** | **Profile Settings** |
 
-| Notifications | Financial Reports | System Health |
 | :---: | :---: | :---: |
 | ![Step 4](./SCREEN%20SHOT/4.png) | ![Step 5](./SCREEN%20SHOT/5.png) | ![Step 6](./SCREEN%20SHOT/6.png) |
-| **Alerts UI** | **Revenue Charts** | **Server Logs** |
 
-| Dark Mode | Mobile Responsive | Final Summary |
 | :---: | :---: | :---: |
 | ![Step 7](./SCREEN%20SHOT/7.png) | ![Step 8](./SCREEN%20SHOT/8.png) | ![Step 9](./SCREEN%20SHOT/9.png) |
-| **Night Theme** | **Mobile View** | **Export Options** |
+:---: | :---: | :---: |
 
 ---
 
