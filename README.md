@@ -109,7 +109,7 @@ Below are the visual highlights of the dashboard. All source images can be found
 | ACHIEMENTS |FILGHT MANUAL | FILGHT MANUAL   |
 | :---: | :---: | :---: |
 | ![Step 7](./SCREEN%20SHOT/7.png) | ![Step 8](./SCREEN%20SHOT/8.png) | ![Step 9](./SCREEN%20SHOT/9.png) |
-:---: | :---: | :---: |
+
 
 
 ---
