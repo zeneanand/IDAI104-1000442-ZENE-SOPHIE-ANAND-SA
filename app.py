@@ -95,6 +95,16 @@ st.markdown("""
         color: #666;
         filter: grayscale(100%);
     }
+
+    /* Sci-Fi Insight Box */
+    .insight-box {
+        background: rgba(0, 242, 255, 0.05);
+        border-left: 4px solid #00f2ff;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -282,6 +292,12 @@ def main_app():
                     )
                     fig.add_hline(y=lvl_info['target_alt'], line_dash="dash", line_color="#ff007b", annotation_text="TARGET ALTITUDE", annotation_font_color="#ff007b")
                     st.plotly_chart(fig, use_container_width=True)
+                    
+                    st.markdown("""
+                        <div class="insight-box">
+                            <b>📡 TELEMETRY INSIGHT:</b> The curve shows your altitude over time. The peak (Apogee) is reached when vertical velocity hits zero. To achieve a higher apogee, you must optimize the <b>Thrust-to-Weight Ratio</b> early in the burn sequence.
+                        </div>
+                    """, unsafe_allow_html=True)
 
     with tab2:
         st.title("📊 Mission Analytics Archive")
@@ -303,25 +319,30 @@ def main_app():
                 if c_payload and c_fuel and c_success:
                     fig1 = px.scatter(df, x=c_payload, y=c_fuel, color=c_success, title="Payload vs Fuel Consumption", template=theme, color_discrete_sequence=colors)
                     st.plotly_chart(fig1, use_container_width=True)
+                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Notice the linear clustering. Successful missions (cyan) typically maintain a specific efficiency ratio between fuel and cargo weight.</div>', unsafe_allow_html=True)
                 
                 if c_dist and c_dur:
                     df_sorted = df.sort_values(c_dist)
                     fig3 = px.line(df_sorted, x=c_dist, y=c_dur, title="Mission Duration vs Distance", template=theme, color_discrete_sequence=colors)
                     st.plotly_chart(fig3, use_container_width=True)
+                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> The slope represents average travel velocity. Anomalies (spikes) may indicate mid-flight course corrections or gravitational slingshot maneuvers.</div>', unsafe_allow_html=True)
 
                 if c_cost and c_yield and c_crew and c_success:
                     fig5 = px.scatter(df, x=c_cost, y=c_yield, size=c_crew, color=c_success, title="Scientific Yield vs Cost", template=theme, color_discrete_sequence=colors)
                     st.plotly_chart(fig5, use_container_width=True)
+                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Bubble size represents crew count. High-yield, low-cost missions (top-left) are the "Golden Standard" for Starfleet budgetary efficiency.</div>', unsafe_allow_html=True)
 
             with c2:
                 if c_success and c_cost:
                     avg_cost = df.groupby(c_success)[c_cost].mean().reset_index()
                     fig2 = px.bar(avg_cost, x=c_success, y=c_cost, color=c_success, title="Avg Cost: Success vs Failure", template=theme, color_discrete_sequence=colors)
                     st.plotly_chart(fig2, use_container_width=True)
+                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Failed missions often correlate with lower-than-average investment, suggesting that technical shortcuts increase risk of structural failure.</div>', unsafe_allow_html=True)
                 
                 if c_success and c_crew:
                     fig4 = px.box(df, x=c_success, y=c_crew, color=c_success, title="Crew Size vs Success Rate", template=theme, color_discrete_sequence=colors)
                     st.plotly_chart(fig4, use_container_width=True)
+                    st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> This box plot reveals the median crew safety threshold. Successful missions tend to have a tighter distribution of crew sizes.</div>', unsafe_allow_html=True)
                 
                 st.write("**Feature Correlation Heatmap**")
                 corr = df.corr(numeric_only=True)
@@ -331,6 +352,7 @@ def main_app():
                 )
                 fig_h.update_layout(margin=dict(l=0, r=0, t=30, b=0))
                 st.plotly_chart(fig_h, use_container_width=True)
+                st.markdown('<div class="insight-box"><b>🔍 INSIGHT:</b> Values closer to 1.0 indicate strong positive relationships. For example, observe the high correlation between Payload and Fuel requirements.</div>', unsafe_allow_html=True)
         else:
             st.error("Missing 'rocket_missions.csv'. Please upload it to your working directory.")
 
@@ -374,9 +396,11 @@ def main_app():
     with tab4:
         st.title("📖 Flight Manual & Orbital Physics")
         st.write("Understanding the forces at play is critical for mission success. Review the telemetry principles below before adjusting your simulation parameters.")
+        
+
+[Image of Newton's second law of motion diagram]
+
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        
         
         with st.container(border=True):
             st.markdown("### 🍎 Newton's Second Law of Motion")
