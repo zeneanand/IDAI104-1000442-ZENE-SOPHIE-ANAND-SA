@@ -106,7 +106,7 @@ Below are the visual highlights of the dashboard. All source images can be found
 | :---: | :---: | :---: |
 | ![Step 4](./SCREEN%20SHOT/4.png) | ![Step 5](./SCREEN%20SHOT/5.png) | ![Step 6](./SCREEN%20SHOT/6.png) |
 
-| ACHIEMENTS |FILGHT MANUAL | FILGHT MANUAL   |
+| ACHIEMENTS |FLIGHT MANUAL | FLIGHT MANUAL   |
 | :---: | :---: | :---: |
 | ![Step 7](./SCREEN%20SHOT/7.png) | ![Step 8](./SCREEN%20SHOT/8.png) | ![Step 9](./SCREEN%20SHOT/9.png) |
 
