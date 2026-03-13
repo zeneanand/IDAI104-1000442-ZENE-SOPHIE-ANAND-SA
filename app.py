@@ -158,7 +158,7 @@ def login_page():
         with st.container(border=True):
             st.markdown("<h1 style='text-align: center; color: #00f2ff;'>🚀 ASTRODASH</h1>", unsafe_allow_html=True)
             st.markdown("<h4 style='text-align: center; color: #a0aec0; margin-bottom: 30px;'>MISSION CONTROL TERMINAL</h4>", unsafe_allow_html=True)
-            u = st.text_input("ENTER COMMANDER ID", placeholder="get_started...")
+            u = st.text_input("ENTER COMMANDER ID", placeholder="Commander name...")
             if st.button("INITIALIZE SYSTEMS", use_container_width=True):
                 if u: 
                     st.session_state['current_user'] = u.upper()
@@ -300,10 +300,6 @@ def main_app():
         
         with st.container(border=True):
             st.markdown("### 🍎 Telemetry Principles")
-            st.markdown("
-
-[Image of Newton's second law of motion diagram]
-")
             f1, f2, f3 = st.columns(3)
             f1.markdown("<h4 style='color:#00f2ff;'>🚀 Thrust</h4>", unsafe_allow_html=True)
             f1.write("Upward engine force.")
