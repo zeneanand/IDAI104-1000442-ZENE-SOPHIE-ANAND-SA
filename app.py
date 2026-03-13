@@ -240,7 +240,7 @@ def main_app():
                     fig = px.area(results_df, x="Time", y="Altitude", template="plotly_dark", color_discrete_sequence=['#00f2ff'])
                     fig.add_hline(y=lvl_info['target_alt'], line_dash="dash", line_color="#ff007b", annotation_text="TARGET")
                     st.plotly_chart(fig, use_container_width=True)
-                    st.markdown("""<div class="insight-box"><b>📡 TELEMETRY INSIGHT:</b> Apogee occurs when vertical velocity hits zero. To climb higher, optimize the initial <b>Thrust-to-Weight Ratio</b>.</div>""", unsafe_allow_html=True)
+                    st.markdown("""<div class="insight-box"><b>📡 TELEMETRY INSIGHT:</b> Apogee occurs when vertical velocity hits zero. To climb higher, optimize the initial <b>Thrust-to-Weight Ratio</b> early in the burn.</div>""", unsafe_allow_html=True)
 
     with tab2:
         st.title("📊 Mission Analytics Archive")
@@ -294,19 +294,42 @@ def main_app():
                 st.markdown(f"""<div class="{card_class}"><h3>{name}</h3><p>{desc}</p><b>{status_txt}</b></div><br>""", unsafe_allow_html=True)
 
     with tab4:
-        st.title("📖 Flight Manual & Orbital Physics")
-        st.markdown("**Newton's Second Law Observation:**")
-        st.write("Force equals mass times acceleration ($F = ma$). Net force determines your climb.")
+        st.title("📖 Flight Manual & Mission Telemetry")
         
+        # Section 1: Integrated Answers
+        st.markdown("### 🛰️ Commander's FAQ")
+        faq_col1, faq_col2 = st.columns(2)
+        
+        with faq_col1:
+            st.markdown("#### 1. How does adding more payload affect altitude?")
+            st.write("Adding payload increases total mass ($m$). Since $a = F/m$, a higher mass results in lower acceleration. The rocket becomes 'heavier' to lift, reaching a much lower Apogee for the same fuel.")
+            
+            st.markdown("#### 2. How does increasing thrust affect launch success?")
+            st.write("Increasing thrust improves your **Thrust-to-Weight Ratio (TWR)**. You need a TWR > 1.0 just to lift off. Higher thrust fights gravity more effectively, though it increases G-force stress.")
+            
+            st.markdown("#### 3. Does lower drag at higher altitudes improve speed?")
+            st.write("Yes. Drag is caused by air density. As you climb, the air thins, reducing resistance. This allows the rocket to accelerate much faster in the upper atmosphere.")
+
+        with faq_col2:
+            st.markdown("#### 4. How long would it take to reach orbit?")
+            st.write("Typically, it takes **8 to 12 minutes** of continuous thrust to reach Low Earth Orbit (LEO). This involves gaining a horizontal speed of ~7.8 km/s.")
+            
+            st.markdown("#### 5. Can simulation values be compared with real missions?")
+            st.write("Absolutely. While simplified, the fundamental correlations between Mass, Thrust, and Altitude in this sim mirror the Newtonian physics used by SpaceX and NASA.")
+
+        st.markdown("---")
+        
+        # Section 2: Principles
         with st.container(border=True):
             st.markdown("### 🍎 Telemetry Principles")
+            st.write("Force equals mass times acceleration ($F = ma$). Net force determines your climb.")
             f1, f2, f3 = st.columns(3)
             f1.markdown("<h4 style='color:#00f2ff;'>🚀 Thrust</h4>", unsafe_allow_html=True)
-            f1.write("Upward engine force.")
+            f1.write("Upward engine force produced by exhaust velocity.")
             f2.markdown("<h4 style='color:#00ff88;'>💨 Drag</h4>", unsafe_allow_html=True)
-            f2.write("Atmospheric resistance.")
+            f2.write("Atmospheric resistance that opposes your motion.")
             f3.markdown("<h4 style='color:#ff007b;'>📦 Payload</h4>", unsafe_allow_html=True)
-            f3.write("Vessel cargo weight.")
+            f3.write("The vessel's cargo weight (Satellites/Instruments).")
         
         st.markdown("### 🎯 Mission Planning Insights")
         st.markdown("""
@@ -316,8 +339,6 @@ def main_app():
                 orbital stages are more efficient once they clear the atmosphere.
             </div>
         """, unsafe_allow_html=True)
-        with st.expander("**Payload vs Altitude?**"): st.write("Heavier payloads decrease acceleration and apogee.")
-        with st.expander("**Thrust vs Success?**"): st.write("Higher thrust overcomes gravity faster but increases structural G-stress.")
 
 if __name__ == "__main__":
     if st.session_state['current_user']: main_app()
